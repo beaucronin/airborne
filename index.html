@@ -36,8 +36,9 @@
 				dataset.add(state);
 			}
 
-			embedding = new EMBED.ScatterEmbedding(
-				scene, dataset, {pointSize: 0.1, pointColor: 0x993333, z: 0 });
+			// embedding = new EMBED.ScatterEmbedding(
+			// 	scene, dataset, {pointSize: 0.1, pointColor: 0x993333, z: 0 });
+			embedding = new EMBED.MeshEmbedding(scene, dataset);
 			EMBED.register(embedding);
 		}
 
@@ -73,10 +74,11 @@
 			effect = objs.effect;
 			cameraControls = objs.cameraControls;
 
+			// Fetch flight data
 			EMBED.utils.ajaxWithCallback(
 				'https://4vesdtyv82.execute-api.us-west-2.amazonaws.com/dev/?age=6000', initFlights);
-			EMBED.utils.ajaxWithCallback(
-				'data/coastline_110m.json', initGlobe);
+			// Get globe coastline data
+			EMBED.utils.ajaxWithCallback('data/coastline_110m.json', initGlobe);
 
 			EMBED.startAnimation();
 		}
