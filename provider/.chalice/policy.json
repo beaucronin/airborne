@@ -1,0 +1,24 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "dynamodb:Scan"
+      ],
+      "Resource": [
+        "*"
+      ],
+      "Effect": "Allow",
+      "Sid": "a3bffc26519f4c50a3dc82e0b5e07393"
+    },
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*",
+      "Effect": "Allow"
+    }
+  ]
+}
