@@ -1,0 +1,10 @@
+{
+  "name": "OpenSky_Fetcher",
+  "description": "Feches flight states from the OpenSky Network",
+  "memory": 128,
+  "timeout": 5,
+  "role": "arn:aws:iam::811920840952:role/OpenSky_Fetcher_lambda_function",
+  "runtime": "python",
+  "defaultEnvironment": "dev",
+  "environment": {}
+}

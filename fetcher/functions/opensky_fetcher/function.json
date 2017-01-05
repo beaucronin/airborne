@@ -1,0 +1,5 @@
+{
+	"handler": "lambda.main",
+	"timeout": 300,
+	"memory": 128
+}
