@@ -1,1 +1,65 @@
-test
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+		<meta charset="utf-8" />
+		<title>Embedding.js basic example</title>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r81/three.min.js"></script>
+		<script type="text/javascript" src="js/VRControls.js"></script>
+		<script type="text/javascript" src="js/VREffect.js"></script>
+		<script type="text/javascript" src="js/webvr-polyfill.js"></script>
+		<script type="text/javascript" src="js/webvr-manager.js"></script>
+	</head>
+	<body>
+		<script src="js/embedding.js"></script>
+		<script>
+		var scene, camera, manager, effect, cameraControls, vrDisplay;
+		var dataset, embedding;
+		var R = 4;
+
+		window.onload = function() {
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', 'https://4vesdtyv82.execute-api.us-west-2.amazonaws.com/dev/');
+			xhr.send(null);
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState === 4 && xhr.status === 200) {
+					init(JSON.parse(xhr.responseText));
+				}
+			}			
+		}
+
+		function degToRad(deg) { return deg * Math.PI / 180 }
+
+		function init(stateData) {
+			console.log(stateData.states.length);
+			var objs = EMBED.initScene();
+			scene = objs.scene;
+			camera = objs.camera;
+			manager = objs.manager;
+			effect = objs.effect;
+			cameraControls = objs.cameraControls;
+			navigator.getVRDisplays().then(function(displays) {
+		    	if (displays.length > 0) vrDisplay = displays[0];
+			});
+
+			dataset = new EMBED.Dataset();
+			for (let state of stateData.states) {
+				state._id = state.icao24;
+				let radLat = degToRad(state.latitude);
+				let radLong = degToRad(state.longitude);
+				state.x = R * Math.cos(radLat) * Math.cos(-radLong);
+				state.y = R * Math.cos(radLat) * Math.sin(-radLong);
+				state.z = R * Math.sin(radLat) - 10
+				dataset.add(state);
+			}
+
+			embedding = new EMBED.ScatterEmbedding(
+				scene, dataset, {pointSize: 0.1, pointColor: 0x993333 });
+			EMBED.register(embedding);
+			EMBED.animate();
+		}
+
+
+		</script>
+	</body>
+</html>
