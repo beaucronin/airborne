@@ -27,7 +27,9 @@ def index():
                 x[k] = v['BOOL']
         return x
 
-    t = int(time.time()) - MAX_AGE
+    age = int(app.current_request.query_params.get('age', MAX_AGE))
+
+    t = int(time.time()) - age
     # Find all states whose position has been updated recently
     result = dynamo.scan(
         TableName=STATES_TABLE,

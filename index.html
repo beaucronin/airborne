@@ -9,54 +9,75 @@
 		<script type="text/javascript" src="js/VREffect.js"></script>
 		<script type="text/javascript" src="js/webvr-polyfill.js"></script>
 		<script type="text/javascript" src="js/webvr-manager.js"></script>
+		<style>
+			html, body, div, canvas {
+	 			margin: 0;
+	    		padding: 0;
+			}
+		</style>
 	</head>
 	<body>
 		<script src="js/embedding.js"></script>
 		<script>
-		var scene, camera, manager, effect, cameraControls, vrDisplay;
-		var dataset, embedding;
+		var scene, camera, manager, effect, cameraControls, dataset, embedding;
 		var R = 4;
 
-		window.onload = function() {
-			var xhr = new XMLHttpRequest();
-			xhr.open('GET', 'https://4vesdtyv82.execute-api.us-west-2.amazonaws.com/dev/');
-			xhr.send(null);
-			xhr.onreadystatechange = function() {
-				if (xhr.readyState === 4 && xhr.status === 200) {
-					init(JSON.parse(xhr.responseText));
-				}
-			}			
+		window.onload = () => init();
+
+		function initFlights(flightData) {
+			dataset = new EMBED.Dataset();
+			for (let state of flightData.states) {
+				state._id = state.icao24;
+				let { x, y, z } = EMBED.utils.latLongToEuclidean(state.latitude, state.longitude, R, false);
+				state.x = x;
+				state.y = y;
+				state.z = z;
+				dataset.add(state);
+			}
+
+			embedding = new EMBED.ScatterEmbedding(
+				scene, dataset, {pointSize: 0.1, pointColor: 0x993333, z: 0 });
+			EMBED.register(embedding);
 		}
 
-		function degToRad(deg) { return deg * Math.PI / 180 }
+		function initGlobe(coastData) {
+			var mat = new THREE.LineBasicMaterial({
+				color: 0x0276FD,
+				linewidth: 8,
+			});
 
-		function init(stateData) {
-			console.log(stateData.states.length);
+			var obj = new THREE.Object3D();
+			obj.position.set(0,0,0);
+			scene.add(obj);
+			var sphere = new THREE.Mesh(
+				new THREE.SphereGeometry(R-.01, 32, 32),
+				new THREE.MeshStandardMaterial({
+					color: 0x111111, opacity: 0.5, metalness: 0
+				}));
+			obj.add(sphere);
+			for (let feature of coastData.features) {
+				var geo = new THREE.Geometry();
+				for (let point of feature.geometry.coordinates) {
+					geo.vertices.push(EMBED.utils.latLongToEuclidean(point[1], point[0], R, false))
+				}
+				obj.add(new THREE.Line(geo, mat));
+			}
+		}
+
+		function init() {
 			var objs = EMBED.initScene();
 			scene = objs.scene;
 			camera = objs.camera;
 			manager = objs.manager;
 			effect = objs.effect;
 			cameraControls = objs.cameraControls;
-			navigator.getVRDisplays().then(function(displays) {
-		    	if (displays.length > 0) vrDisplay = displays[0];
-			});
 
-			dataset = new EMBED.Dataset();
-			for (let state of stateData.states) {
-				state._id = state.icao24;
-				let radLat = degToRad(state.latitude);
-				let radLong = degToRad(state.longitude);
-				state.x = R * Math.cos(radLat) * Math.cos(-radLong);
-				state.y = R * Math.cos(radLat) * Math.sin(-radLong);
-				state.z = R * Math.sin(radLat) - 10
-				dataset.add(state);
-			}
+			EMBED.utils.ajaxWithCallback(
+				'https://4vesdtyv82.execute-api.us-west-2.amazonaws.com/dev/?age=6000', initFlights);
+			EMBED.utils.ajaxWithCallback(
+				'data/coastline_110m.json', initGlobe);
 
-			embedding = new EMBED.ScatterEmbedding(
-				scene, dataset, {pointSize: 0.1, pointColor: 0x993333 });
-			EMBED.register(embedding);
-			EMBED.animate();
+			EMBED.startAnimation();
 		}
 
 
