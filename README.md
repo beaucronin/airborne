@@ -12,14 +12,24 @@ The infrastructure directory contains a simple [Terraform](https://www.terraform
 
 - Install apex, chalice, terraform
 
+- Deploy the fetcher lambda
+
 ```
 cd fetcher
 apex init
 apex deploy
 ```
 
-Add dynamo db full access to lambda role
-Add CloudWatch timer trigger to lambda 
+- Add dynamo db full access to lambda role
+
+- Add CloudWatch timer trigger to lambda 
+
+- Deploy the chalice microservice
+
+```
+cd provider
+chalice deploy
+```
 
 ## Possible extensions
 

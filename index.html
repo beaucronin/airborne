@@ -14,7 +14,9 @@
 		<script type="text/javascript" src="js/VREffect.js"></script>
 		<script type="text/javascript" src="js/webvr-polyfill.js"></script>
 		<script type="text/javascript" src="js/webvr-manager.js"></script>
+
 		<style>
+			/* Ensures that the canvas fills the entire window, and that there are no scrollbars */
 			body {
 				width: 100%;
 				height: 100%;
@@ -30,7 +32,7 @@
 		
 		<script src="js/embedding.js"></script>
 		<script>
-		var scene, camera, manager, effect, cameraControls, dataset, embedding;
+		var scene, camera, manager, effect, cameraControls, dataset, flightsEmbedding;
 		var R = 4;
 
 		window.onload = () => init();
@@ -46,10 +48,10 @@
 				dataset.add(state);
 			}
 
-			// embedding = new EMBED.ScatterEmbedding(
-			// 	scene, dataset, {pointSize: 0.1, pointColor: 0x993333, z: 0 });
-			embedding = new EMBED.MeshEmbedding(scene, dataset);
-			EMBED.register(embedding);
+			flightsEmbedding = new EMBED.MeshEmbedding(scene, dataset);
+			EMBED.register(flightsEmbedding);
+			consoleEmbedding = new EMBED.ConsoleEmbedding(scene, dataset);
+			EMBED.register(consoleEmbedding);
 		}
 
 		function initGlobe(coastData) {
